@@ -31,40 +31,8 @@ class App extends React.Component {
     }
   }
 
-  addBlog = async (event) => {
-    event.preventDefault()
-    try {
-      const blogObject = {
-        title: this.state.newTitle,
-        author: this.state.newAuthor,
-        url: this.state.newUrl,
-        likes: 0
-      }
-
-      const newBlog = await blogService.create(blogObject)
-
-      this.setState({
-        blogs: this.state.blogs.concat(newBlog),
-        newTitle: '',
-        newAuthor: '',
-        newUrl: ''
-      })
-      this.setState({
-        error: `a new blog '${newBlog.title}' by ${newBlog.author} added`,
-        errorType: 's'
-      })
-      setTimeout(() => {
-        this.setState({ error: null, errorType: null })
-      }, 5000)
-    } catch (e) {
-      this.setState({
-        error: 'adding a new blog failed',
-        errorType: 'f'
-      })
-      setTimeout(() => {
-        this.setState({ error: null, errorType: null })
-      }, 5000)
-    }
+  updateBlogs = (blog) => {
+    this.setState({ blogs: this.state.blogs.concat(blog) })
   }
 
   likeBlog = (id) => {
@@ -115,7 +83,7 @@ class App extends React.Component {
 
   render() {
 
-    const blogForm = () => (
+    const blogView = () => (
       <div>
         <h1>BLOGLIST</h1>
 
@@ -124,52 +92,10 @@ class App extends React.Component {
           <input id="logout" value="LOGOUT" type="button" onClick={this.logout} />
         </div>
 
-        <div>
-          <h2>Add new blog</h2>
+        <BlogForm
+          handleBlogs={this.updateBlogs.bind(this)}
+        />
 
-          <Notification
-            message={this.state.error}
-            type={this.state.errorType}
-          />
-
-          <form onSubmit={this.addBlog}>
-            <table>
-              <tbody>
-                <InputField
-                  type="text"
-                  name="newTitle"
-                  id="Title"
-                  value={this.state.newTitle}
-                  onChange={this.handleFieldChange}
-                />
-
-                <InputField
-                  type="text"
-                  name="newAuthor"
-                  id="Author"
-                  value={this.state.newAuthor}
-                  onChange={this.handleFieldChange}
-                />
-
-
-                <InputField
-                  type="url"
-                  name="newUrl"
-                  id="URL"
-                  value={this.state.newUrl}
-                  onChange={this.handleFieldChange}
-                />
-
-              </tbody>
-            </table>
-
-            <input
-              type="submit"
-              name="submitBlog"
-              value="create"
-            />
-          </form>
-        </div>
         <div>
           <h2>Blogs</h2>
           {this.state.blogs.map(blog =>
@@ -191,9 +117,9 @@ class App extends React.Component {
             error={this.state.error}
             errorType={this.state.errorType}
           /> :
-          blogForm()
-        }
+          blogView()
 
+        }
       </div>
     );
   }
@@ -267,23 +193,200 @@ const LoginForm = ({ error, errorType, handleSubmit, handleChange, username, pas
   </div>
 )
 
-// class BlogForm extends React.Component {
-//   constructor(props) {
-//     super(props)
-//     this.state = {
-//       newTitle: '',
-//       newAuthor: '',
-//       newUrl: '',
-//       error: null,
-//       errorType: ''
-//     }
-//   }
+class BlogForm extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      newTitle: '',
+      newAuthor: '',
+      newUrl: '',
+      error: null,
+      errorType: ''
+    }
+    this.handleBlogs = props.handleBlogs
+  }
 
-//   render() {
-//     return (
-//       null
-//     )
-//   }
-// }
+  addBlog = async (event) => {
+    event.preventDefault()
+    try {
+      const blogObject = {
+        title: this.state.newTitle,
+        author: this.state.newAuthor,
+        url: this.state.newUrl,
+        likes: 0
+      }
+
+      const newBlog = await blogService.create(blogObject)
+
+      this.setState({
+        newTitle: '',
+        newAuthor: '',
+        newUrl: ''
+      })
+
+      this.handleBlogs(newBlog)
+
+      this.setState({
+        error: `a new blog '${newBlog.title}' by ${newBlog.author} added`,
+        errorType: 's'
+      })
+      setTimeout(() => {
+        this.setState({ error: null, errorType: '' })
+      }, 5000)
+    } catch (e) {
+      this.setState({
+        error: 'adding a new blog failed',
+        errorType: 'f'
+      })
+      setTimeout(() => {
+        this.setState({ error: null, errorType: null })
+      }, 5000)
+    }
+  }
+
+  handleFieldChange = (event) => {
+    this.setState({ [event.target.name]: event.target.value })
+  }
+
+  render() {
+    return (
+      <div>
+        <div>
+          <h2>Add new blog</h2>
+
+          <Notification
+            message={this.state.error}
+            type={this.state.errorType}
+          />
+
+          <form onSubmit={this.addBlog}>
+            <table>
+              <tbody>
+                <InputField
+                  type="text"
+                  name="newTitle"
+                  id="Title"
+                  value={this.state.newTitle}
+                  onChange={this.handleFieldChange}
+                />
+
+                <InputField
+                  type="text"
+                  name="newAuthor"
+                  id="Author"
+                  value={this.state.newAuthor}
+                  onChange={this.handleFieldChange}
+                />
+
+
+                <InputField
+                  type="url"
+                  name="newUrl"
+                  id="URL"
+                  value={this.state.newUrl}
+                  onChange={this.handleFieldChange}
+                />
+
+              </tbody>
+            </table>
+
+            <input
+              type="submit"
+              name="submitBlog"
+              value="create"
+            />
+          </form>
+        </div>
+      </div>
+    )
+  }
+}
 
 export default App;
+
+
+
+  // addBlog = async (event) => {
+  //   event.preventDefault()
+  //   try {
+  //     const blogObject = {
+  //       title: this.state.newTitle,
+  //       author: this.state.newAuthor,
+  //       url: this.state.newUrl,
+  //       likes: 0
+  //     }
+
+  //     const newBlog = await blogService.create(blogObject)
+
+  //     this.setState({
+  //       blogs: this.state.blogs.concat(newBlog),
+  //       newTitle: '',
+  //       newAuthor: '',
+  //       newUrl: ''
+  //     })
+  //     this.setState({
+  //       error: `a new blog '${newBlog.title}' by ${newBlog.author} added`,
+  //       errorType: 's'
+  //     })
+  //     setTimeout(() => {
+  //       this.setState({ error: null, errorType: null })
+  //     }, 5000)
+  //   } catch (e) {
+  //     this.setState({
+  //       error: 'adding a new blog failed',
+  //       errorType: 'f'
+  //     })
+  //     setTimeout(() => {
+  //       this.setState({ error: null, errorType: null })
+  //     }, 5000)
+  //   }
+  // }
+
+
+
+/* <div>
+<h2>Add new blog</h2>
+
+<Notification
+  message={this.state.error}
+  type={this.state.errorType}
+/>
+
+<form onSubmit={this.addBlog}>
+  <table>
+    <tbody>
+      <InputField
+        type="text"
+        name="newTitle"
+        id="Title"
+        value={this.state.newTitle}
+        onChange={this.handleFieldChange}
+      />
+
+      <InputField
+        type="text"
+        name="newAuthor"
+        id="Author"
+        value={this.state.newAuthor}
+        onChange={this.handleFieldChange}
+      />
+
+
+      <InputField
+        type="url"
+        name="newUrl"
+        id="URL"
+        value={this.state.newUrl}
+        onChange={this.handleFieldChange}
+      />
+
+    </tbody>
+  </table>
+
+  <input
+    type="submit"
+    name="submitBlog"
+    value="create"
+  />
+</form>
+</div> */
