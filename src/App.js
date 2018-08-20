@@ -14,7 +14,8 @@ class App extends React.Component {
       username: '',
       password: '',
       user: null,
-      error: null
+      error: null,
+      errorType: ''
     }
   }
 
@@ -22,6 +23,12 @@ class App extends React.Component {
     blogService.getAll().then(blogs =>
       this.setState({ blogs })
     )
+    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON)
+      this.setState({ user })
+      blogService.setToken(user.token)
+    }
   }
 
   addBlog = async (event) => {
@@ -29,7 +36,7 @@ class App extends React.Component {
     try {
       const blogObject = {
         title: this.state.newTitle,
-        author: this.state.newTitle,
+        author: this.state.newAuthor,
         url: this.state.newUrl,
         likes: 0
       }
@@ -37,17 +44,25 @@ class App extends React.Component {
       const newBlog = await blogService.create(blogObject)
 
       this.setState({
-        notes: this.state.blogs.concat(newBlog),
+        blogs: this.state.blogs.concat(newBlog),
         newTitle: '',
         newAuthor: '',
         newUrl: ''
       })
-    } catch (e) {
       this.setState({
-        error: e.message
+        error: `a new blog '${newBlog.title}' by ${newBlog.author} added`,
+        errorType: 's'
       })
       setTimeout(() => {
-        this.setState({ error: null })
+        this.setState({ error: null, errorType: null })
+      }, 5000)
+    } catch (e) {
+      this.setState({
+        error: 'adding a new blog failed',
+        errorType: 'f'
+      })
+      setTimeout(() => {
+        this.setState({ error: null, errorType: null })
       }, 5000)
     }
   }
@@ -70,6 +85,8 @@ class App extends React.Component {
         password: this.state.password
       })
 
+      window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
+      blogService.setToken(user.token)
       this.setState({
         username: '',
         password: '',
@@ -77,10 +94,11 @@ class App extends React.Component {
       })
     } catch (e) {
       this.setState({
-        error: 'username or password invalid'
+        error: 'username or password invalid',
+        errorType: 'f'
       })
       setTimeout(() => {
-        this.setState({ error: null })
+        this.setState({ error: null, errorType: '' })
       }, 5000)
     }
 
@@ -88,6 +106,7 @@ class App extends React.Component {
 
   logout = () => {
     this.setState({ user: null })
+    window.localStorage.removeItem('loggedBlogappUser')
   }
 
   handleFieldChange = (event) => {
@@ -96,53 +115,22 @@ class App extends React.Component {
 
   render() {
 
-    const loginForm = () => (
-      <div>
-        <h2>Welcome to Bloglist</h2>
-
-        <Notification message={this.state.error} />
-
-        <form onSubmit={this.login}>
-          <table>
-            <tbody>
-              <InputField
-                type="text"
-                name="username"
-                id="Username"
-                value={this.state.username}
-                onChange={this.handleFieldChange}
-              />
-
-              <InputField
-                type="password"
-                name="password"
-                id="Password"
-                value={this.state.password}
-                onChange={this.handleFieldChange}
-              />
-            </tbody>
-          </table>
-          <input
-            type="submit"
-            value="LOGIN"
-            name="submitUser"
-          />
-        </form>
-      </div>
-    )
-
     const blogForm = () => (
       <div>
         <h1>BLOGLIST</h1>
-
-        <Notification message={this.state.error} />
 
         <div>
           <label htmlFor="logout"><strong>{this.state.user.name}</strong> logged in</label>
           <input id="logout" value="LOGOUT" type="button" onClick={this.logout} />
         </div>
+
         <div>
           <h2>Add new blog</h2>
+
+          <Notification
+            message={this.state.error}
+            type={this.state.errorType}
+          />
 
           <form onSubmit={this.addBlog}>
             <table>
@@ -178,7 +166,7 @@ class App extends React.Component {
             <input
               type="submit"
               name="submitBlog"
-              id="submitBlog"
+              value="create"
             />
           </form>
         </div>
@@ -193,9 +181,16 @@ class App extends React.Component {
 
     return (
       <div>
-        
+
         {this.state.user === null ?
-          loginForm() :
+          <LoginForm
+            handleSubmit={this.login}
+            handleChange={this.handleFieldChange}
+            username={this.state.username}
+            password={this.state.password}
+            error={this.state.error}
+            errorType={this.state.errorType}
+          /> :
           blogForm()
         }
 
@@ -217,16 +212,78 @@ const InputField = (props) => {
           id={props.id}
           value={props.value}
           onChange={props.onChange}
+          required
         />
       </td>
     </tr>
   )
 }
 
-const Notification = ({ message }) => {
-  return (
-    <p>{message}</p>
-  )
+const Notification = ({ message, type }) => {
+  if (type === 's') {
+    return <p className="success">{message}</p>
+  } else if (type === 'f') {
+    return <p className="fail">{message}</p>
+  } else {
+    return null
+  }
 }
+
+const LoginForm = ({ error, errorType, handleSubmit, handleChange, username, password }) => (
+  <div>
+    <h2>Welcome to Bloglist</h2>
+
+    <Notification
+      message={error}
+      type={errorType}
+    />
+
+    <form onSubmit={handleSubmit}>
+      <table>
+        <tbody>
+          <InputField
+            type="text"
+            name={"username"}
+            id="Username"
+            value={username}
+            onChange={handleChange}
+          />
+
+          <InputField
+            type="password"
+            name="password"
+            id="Password"
+            value={password}
+            onChange={handleChange}
+          />
+        </tbody>
+      </table>
+      <input
+        type="submit"
+        value="LOGIN"
+        name="submitUser"
+      />
+    </form>
+  </div>
+)
+
+// class BlogForm extends React.Component {
+//   constructor(props) {
+//     super(props)
+//     this.state = {
+//       newTitle: '',
+//       newAuthor: '',
+//       newUrl: '',
+//       error: null,
+//       errorType: ''
+//     }
+//   }
+
+//   render() {
+//     return (
+//       null
+//     )
+//   }
+// }
 
 export default App;

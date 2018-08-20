@@ -1,0 +1,21 @@
+body {
+  margin: 20, 20;
+  padding: 25, 25;
+  font-family: sans-serif;
+}
+
+.fail {
+  color: white;
+  background: coral;
+  font-size: 16px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.success {
+  color: white;
+  background: lightgreen;
+  font-size: 16px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
