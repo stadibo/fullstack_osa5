@@ -82,43 +82,29 @@ class App extends React.Component {
   }
 
   render() {
-
-    const blogView = () => (
+    return (
       <div>
         <h1>BLOGLIST</h1>
 
-        <div>
-          <label htmlFor="logout"><strong>{this.state.user.name}</strong> logged in</label>
-          <input id="logout" value="LOGOUT" type="button" onClick={this.logout} />
-        </div>
-
-        <BlogForm
-          handleBlogs={this.updateBlogs.bind(this)}
-        />
-
-        <div>
-          <h2>Blogs</h2>
-          {this.state.blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} />
-          )}
-        </div>
-      </div>
-    )
-
-    return (
-      <div>
-
         {this.state.user === null ?
-          <LoginForm
-            handleSubmit={this.login}
-            handleChange={this.handleFieldChange}
-            username={this.state.username}
-            password={this.state.password}
-            error={this.state.error}
-            errorType={this.state.errorType}
-          /> :
-          blogView()
-
+          <Togglable buttonLabel="Login">
+            <LoginForm
+              handleSubmit={this.login}
+              handleChange={this.handleFieldChange}
+              username={this.state.username}
+              password={this.state.password}
+              error={this.state.error}
+              errorType={this.state.errorType}
+            />
+          </Togglable> :
+          <Togglable buttonLabel="New blog">
+            <BlogView
+              updateBlogs={this.updateBlogs}
+              logout={this.logout}
+              user={this.state.user}
+              blogs={this.state.blogs}
+            />
+          </Togglable>
         }
       </div>
     );
@@ -157,7 +143,7 @@ const Notification = ({ message, type }) => {
 
 const LoginForm = ({ error, errorType, handleSubmit, handleChange, username, password }) => (
   <div>
-    <h2>Welcome to Bloglist</h2>
+    <h2>Login to view blogs</h2>
 
     <Notification
       message={error}
@@ -190,6 +176,27 @@ const LoginForm = ({ error, errorType, handleSubmit, handleChange, username, pas
         name="submitUser"
       />
     </form>
+  </div>
+)
+
+const BlogView = ({ user, logout, updateBlogs, blogs }) => (
+  <div>
+
+    <div>
+      <label htmlFor="logout"><strong>{user.name}</strong> logged in</label>
+      <input id="logout" value="LOGOUT" type="button" onClick={logout} />
+    </div>
+
+    <BlogForm
+      handleBlogs={updateBlogs}
+    />
+
+    <div>
+      <h2>Blogs</h2>
+      {blogs.map(blog =>
+        <Blog key={blog.id} blog={blog} />
+      )}
+    </div>
   </div>
 )
 
@@ -296,6 +303,36 @@ class BlogForm extends React.Component {
               value="create"
             />
           </form>
+        </div>
+      </div>
+    )
+  }
+}
+
+class Togglable extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      visible: false
+    }
+  }
+
+  toggleVisibility = () => {
+    this.setState({ visible: !this.state.visible })
+  }
+
+  render() {
+    const hideWhenVisible = { display: this.state.visible ? 'none' : '' }
+    const showWhenVisible = { display: this.state.visible ? '' : 'none' }
+
+    return (
+      <div>
+        <div style={hideWhenVisible}>
+          <button onClick={this.toggleVisibility}>{this.props.buttonLabel}</button>
+        </div>
+        <div style={showWhenVisible}>
+          {this.props.children}
+          <button onClick={this.toggleVisibility}>cancel</button>
         </div>
       </div>
     )
