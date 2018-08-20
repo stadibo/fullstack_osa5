@@ -24,6 +24,7 @@ class App extends React.Component {
       this.setState({ blogs })
     )
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
+    
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       this.setState({ user })
@@ -36,11 +37,18 @@ class App extends React.Component {
   }
 
   likeBlog = (id) => {
-
+    console.log('like', id)
   }
 
   deleteBlog = (id) => {
+    console.log('delete', id)
+  }
 
+  sortBlogs = () => {
+    const sortedBlogs = this.state.blogs.sort((o1, o2) => {
+      return o2.likes - o1.likes
+    })
+    return sortedBlogs
   }
 
   login = async (event) => {
@@ -82,6 +90,7 @@ class App extends React.Component {
   }
 
   render() {
+    //const sortedBlogs = this.sortBlogs()
     return (
       <div>
         <h1>BLOGLIST</h1>
@@ -97,14 +106,14 @@ class App extends React.Component {
               errorType={this.state.errorType}
             />
           </Togglable> :
-          <Togglable buttonLabel="New blog">
-            <BlogView
-              updateBlogs={this.updateBlogs}
-              logout={this.logout}
-              user={this.state.user}
-              blogs={this.state.blogs}
-            />
-          </Togglable>
+          <BlogView
+            updateBlogs={this.updateBlogs}
+            logout={this.logout}
+            user={this.state.user}
+            blogs={this.state.blogs}
+            like={this.likeBlog}
+            remove={this.deleteBlog}
+          />
         }
       </div>
     );
@@ -179,26 +188,28 @@ const LoginForm = ({ error, errorType, handleSubmit, handleChange, username, pas
   </div>
 )
 
-const BlogView = ({ user, logout, updateBlogs, blogs }) => (
-  <div>
+const BlogView = ({ user, logout, updateBlogs, blogs, like, remove }) => {
 
+  return (
     <div>
-      <label htmlFor="logout"><strong>{user.name}</strong> logged in</label>
-      <input id="logout" value="LOGOUT" type="button" onClick={logout} />
+      <div>
+        <label htmlFor="logout"><strong>{user.name}</strong> logged in</label>
+        <input id="logout" value="LOGOUT" type="button" onClick={logout} />
+      </div>
+      
+      <Togglable buttonLabel="New blog">
+        <BlogForm
+          updateBlogs={updateBlogs}
+        />
+      </Togglable>
+      
+      <div>
+        <h2>Blogs</h2>
+        {blogs.map(blog => <Blog key={blog.id} blog={blog} like={like} remove={remove} />)}
+      </div>
     </div>
-
-    <BlogForm
-      handleBlogs={updateBlogs}
-    />
-
-    <div>
-      <h2>Blogs</h2>
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
-      )}
-    </div>
-  </div>
-)
+  )
+}
 
 class BlogForm extends React.Component {
   constructor(props) {
@@ -210,7 +221,7 @@ class BlogForm extends React.Component {
       error: null,
       errorType: ''
     }
-    this.handleBlogs = props.handleBlogs
+    this.updateBlogs = props.updateBlogs
   }
 
   addBlog = async (event) => {
@@ -231,7 +242,7 @@ class BlogForm extends React.Component {
         newUrl: ''
       })
 
-      this.handleBlogs(newBlog)
+      this.updateBlogs(newBlog)
 
       this.setState({
         error: `a new blog '${newBlog.title}' by ${newBlog.author} added`,
@@ -265,7 +276,6 @@ class BlogForm extends React.Component {
             message={this.state.error}
             type={this.state.errorType}
           />
-
           <form onSubmit={this.addBlog}>
             <table>
               <tbody>
@@ -303,6 +313,7 @@ class BlogForm extends React.Component {
               value="create"
             />
           </form>
+
         </div>
       </div>
     )
