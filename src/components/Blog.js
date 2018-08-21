@@ -84,7 +84,7 @@ const ExpandedBlog = ({ blog, like, remove, expandBlog, user }) => {
   )
 }
 
-const SimpleBlog = ({ blog, expandBlog, remove }) => {
+const SimpleBlog = ({ blog, expandBlog }) => {
   return <p className="blogNode" onClick={expandBlog}>{blog.title} | {blog.author}</p>
 }
 
