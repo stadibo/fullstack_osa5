@@ -24,7 +24,7 @@ class App extends React.Component {
       this.setState({ blogs })
     )
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
-    
+
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       this.setState({ user })
@@ -36,12 +36,54 @@ class App extends React.Component {
     this.setState({ blogs: this.state.blogs.concat(blog) })
   }
 
-  likeBlog = (id) => {
+  likeBlog = async (id) => {
     console.log('like', id)
+
+    try {
+      const blog = this.state.blogs.find(b => b.id === id)
+      
+      const updatedBlog = await blogService.update(id, {
+        title: blog.title,
+        author: blog.author,
+        url: blog.url,
+        likes: blog.likes + 1,
+        user: blog.user._id
+      })
+
+      const newBlogs = this.state.blogs.map(b => b.id === id ? updatedBlog : b)
+
+      this.setState({ blogs: newBlogs })
+    } catch (e) {
+      this.setState({
+        error: 'liking blog failed',
+        errorType: 'f'
+      })
+      setTimeout(() => {
+        this.setState({ error: null, errorType: null })
+      }, 5000)
+    }
   }
 
-  deleteBlog = (id) => {
+  deleteBlog = async (id) => {
     console.log('delete', id)
+    const blog = this.state.blogs.find(b => b.id === id)
+    const toDelete = window.confirm(`delete '${blog.title}' by ${blog.author}?`)
+    
+    if (toDelete) {
+      try {
+        await blogService.remove(id)
+        const newBlogs = this.state.blogs.filter(b => b.id !== id)
+        this.setState({ blogs: newBlogs })
+      } catch (e) {
+        this.setState({
+          error: 'deleting blog failed',
+          errorType: 'f'
+        })
+        setTimeout(() => {
+          this.setState({ error: null, errorType: null })
+        }, 5000)
+      }
+    }
   }
 
   sortBlogs = () => {
@@ -90,7 +132,7 @@ class App extends React.Component {
   }
 
   render() {
-    //const sortedBlogs = this.sortBlogs()
+    const sortedBlogs = this.sortBlogs()
     return (
       <div>
         <h1>BLOGLIST</h1>
@@ -110,7 +152,7 @@ class App extends React.Component {
             updateBlogs={this.updateBlogs}
             logout={this.logout}
             user={this.state.user}
-            blogs={this.state.blogs}
+            blogs={sortedBlogs}
             like={this.likeBlog}
             remove={this.deleteBlog}
           />
@@ -196,13 +238,13 @@ const BlogView = ({ user, logout, updateBlogs, blogs, like, remove }) => {
         <label htmlFor="logout"><strong>{user.name}</strong> logged in</label>
         <input id="logout" value="LOGOUT" type="button" onClick={logout} />
       </div>
-      
+
       <Togglable buttonLabel="New blog">
         <BlogForm
           updateBlogs={updateBlogs}
         />
       </Togglable>
-      
+
       <div>
         <h2>Blogs</h2>
         {blogs.map(blog => <Blog key={blog.id} blog={blog} like={like} remove={remove} />)}
