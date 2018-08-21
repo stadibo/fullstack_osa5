@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 class Blog extends React.Component {
   constructor(props) {
@@ -43,6 +44,13 @@ class Blog extends React.Component {
   }
 }
 
+Blog.propTypes = {
+    blog: PropTypes.object.isRequired,
+    user: PropTypes.object.isRequired,
+    like: PropTypes.func.isRequired,
+    remove: PropTypes.func.isRequired,
+}
+
 const ExpandedBlog = ({ blog, like, remove, expandBlog, user }) => {
   const likeBlog = (id) => () => like(id)
   const deleteBlog = (id) => () => remove(id)
@@ -50,9 +58,11 @@ const ExpandedBlog = ({ blog, like, remove, expandBlog, user }) => {
     if (blog.user) {
       if (blog.user.username === user.username) {
         return <button onClick={deleteBlog(blog.id)}>Delete blog</button>
+      } else {
+        return <p></p>
       }
     } else {
-      return <p></p>
+      return <button onClick={deleteBlog(blog.id)}>Delete blog</button>
     }
   }
   let addedBy = blog.user ? <p>added by {blog.user.name}</p> : <p></p>

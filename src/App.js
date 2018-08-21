@@ -37,7 +37,7 @@ class App extends React.Component {
   }
 
   likeBlog = async (id) => {
-    console.log('like', id)
+    //console.log('like', id)
 
     try {
       const blog = this.state.blogs.find(b => b.id === id)
@@ -65,7 +65,7 @@ class App extends React.Component {
   }
 
   deleteBlog = async (id) => {
-    console.log('delete', id)
+    //console.log('delete', id)
     const blog = this.state.blogs.find(b => b.id === id)
     const toDelete = window.confirm(`delete '${blog.title}' by ${blog.author}?`)
 
@@ -95,7 +95,7 @@ class App extends React.Component {
 
   login = async (event) => {
     event.preventDefault()
-    console.log('logging in with', this.state.username, this.state.password)
+    //console.log('logging in with', this.state.username, this.state.password)
 
     try {
       const user = await loginSevice.login({
