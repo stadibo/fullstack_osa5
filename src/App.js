@@ -41,7 +41,7 @@ class App extends React.Component {
 
     try {
       const blog = this.state.blogs.find(b => b.id === id)
-      
+
       const updatedBlog = await blogService.update(id, {
         title: blog.title,
         author: blog.author,
@@ -68,7 +68,7 @@ class App extends React.Component {
     console.log('delete', id)
     const blog = this.state.blogs.find(b => b.id === id)
     const toDelete = window.confirm(`delete '${blog.title}' by ${blog.author}?`)
-    
+
     if (toDelete) {
       try {
         await blogService.remove(id)
@@ -136,6 +136,11 @@ class App extends React.Component {
     return (
       <div>
         <h1>BLOGLIST</h1>
+        
+        <Notification
+          message={this.state.error}
+          type={this.state.errorType}
+        />
 
         {this.state.user === null ?
           <Togglable buttonLabel="Login">
@@ -247,7 +252,7 @@ const BlogView = ({ user, logout, updateBlogs, blogs, like, remove }) => {
 
       <div>
         <h2>Blogs</h2>
-        {blogs.map(blog => <Blog key={blog.id} blog={blog} like={like} remove={remove} />)}
+        {blogs.map(blog => <Blog key={blog.id} blog={blog} like={like} remove={remove} user={user} />)}
       </div>
     </div>
   )
