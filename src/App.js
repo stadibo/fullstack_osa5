@@ -206,7 +206,7 @@ const LoginForm = ({ error, errorType, handleSubmit, handleChange, username, pas
       type={errorType}
     />
 
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="loginForm">
       <table>
         <tbody>
           <InputField

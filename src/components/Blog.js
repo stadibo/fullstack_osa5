@@ -21,7 +21,7 @@ class Blog extends React.Component {
 
     return (
       <div>
-        <div style={hideWhenVisible}>
+        <div style={hideWhenVisible} className="expandedBlog">
           <ExpandedBlog
             key={this.props.blog.id}
             blog={this.props.blog}
@@ -31,7 +31,7 @@ class Blog extends React.Component {
             user={this.props.user}
           />
         </div>
-        <div style={showWhenVisible}>
+        <div style={showWhenVisible} className="simpleBlog" >
           <SimpleBlog
             key={this.props.blog.id}
             blog={this.props.blog}
@@ -45,10 +45,10 @@ class Blog extends React.Component {
 }
 
 Blog.propTypes = {
-    blog: PropTypes.object.isRequired,
-    user: PropTypes.object.isRequired,
-    like: PropTypes.func.isRequired,
-    remove: PropTypes.func.isRequired,
+  blog: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
+  like: PropTypes.func.isRequired,
+  remove: PropTypes.func.isRequired,
 }
 
 const ExpandedBlog = ({ blog, like, remove, expandBlog, user }) => {
@@ -68,7 +68,7 @@ const ExpandedBlog = ({ blog, like, remove, expandBlog, user }) => {
   let addedBy = blog.user ? <p>added by {blog.user.name}</p> : <p></p>
   return (
     <div className="blogNode">
-      <div>
+      <div className="expBlogInfo">
         <p onClick={expandBlog}>{blog.title} | {blog.author}</p>
         <a href={blog.url}>{blog.url}</a>
         <div>
@@ -85,7 +85,11 @@ const ExpandedBlog = ({ blog, like, remove, expandBlog, user }) => {
 }
 
 const SimpleBlog = ({ blog, expandBlog }) => {
-  return <p className="blogNode" onClick={expandBlog}>{blog.title} | {blog.author}</p>
+  return (
+    <div className="blogNode">
+      <p className="simpBlogInfo" onClick={expandBlog}>{blog.title} | {blog.author}</p>
+    </div>
+  )
 }
 
 export default Blog
