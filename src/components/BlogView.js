@@ -4,7 +4,7 @@ import Togglable from './Togglable'
 import Blog from './Blog'
 import { connect } from 'react-redux';
 
-const BlogView = ({ user, logout, updateBlogs, blogs, like, remove }) => {
+const BlogView = ({ user, logout, blogs }) => {
   return (
     <div>
       <div>
@@ -33,7 +33,8 @@ const sortBlogs = (blogs) => {
 
 const mapStateToProps = (state) => {
   return {
-    blogs: sortBlogs(state.blogs)
+    blogs: sortBlogs(state.blogs),
+    user: state.loggedIn
   }
 }
 
