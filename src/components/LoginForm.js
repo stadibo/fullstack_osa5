@@ -2,14 +2,11 @@ import React from 'react'
 import Notification from './Notification'
 import InputField from './InputField'
 
-const LoginForm = ({ error, errorType, handleSubmit, handleChange, username, password }) => (
+const LoginForm = ({ handleSubmit, handleChange, username, password }) => (
   <div>
     <h2>Login to view blogs</h2>
 
-    <Notification
-      message={error}
-      type={errorType}
-    />
+    <Notification />
 
     <form onSubmit={handleSubmit} className="loginForm">
       <table>

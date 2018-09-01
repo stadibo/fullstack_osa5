@@ -4,6 +4,7 @@ import Notification from './Notification'
 import InputField from './InputField'
 import { connect } from 'react-redux'
 import { notify } from '../reducers/notificationReducer'
+import { createBlog } from '../reducers/blogsReducer'
 
 class BlogForm extends React.Component {
   constructor(props) {
@@ -11,11 +12,8 @@ class BlogForm extends React.Component {
     this.state = {
       newTitle: '',
       newAuthor: '',
-      newUrl: '',
-      error: null,
-      errorType: ''
+      newUrl: ''
     }
-    this.updateBlogs = props.updateBlogs
   }
 
   addBlog = async (event) => {
@@ -27,18 +25,14 @@ class BlogForm extends React.Component {
         url: this.state.newUrl,
         likes: 0
       }
-
-      const newBlog = await blogService.create(blogObject)
-
+      const data = await blogService.create(blogObject)
+      this.props.createBlog(data)
       this.setState({
         newTitle: '',
         newAuthor: '',
         newUrl: ''
       })
-
-      this.updateBlogs(newBlog)
-
-      this.props.notify(`a new blog '${newBlog.title}' by ${newBlog.author} added`, 's', 5)
+      this.props.notify(`a new blog '${data.title}' by ${data.author} added`, 's', 5)
     } catch (e) {
       this.props.notify('adding a new blog failed', 'f', 5)
     }
@@ -54,10 +48,8 @@ class BlogForm extends React.Component {
         <div>
           <h2>Add new blog</h2>
 
-          <Notification
-            message={this.state.error}
-            type={this.state.errorType}
-          />
+          <Notification />
+
           <form onSubmit={this.addBlog}>
             <table>
               <tbody>
@@ -76,7 +68,6 @@ class BlogForm extends React.Component {
                   value={this.state.newAuthor}
                   onChange={this.handleFieldChange}
                 />
-
 
                 <InputField
                   type="url"
@@ -104,5 +95,5 @@ class BlogForm extends React.Component {
 
 export default connect(
   null,
-  { notify }
+  { createBlog, notify }
 )(BlogForm)

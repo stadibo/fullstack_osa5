@@ -2,6 +2,7 @@ import React from 'react'
 import BlogForm from './BlogForm'
 import Togglable from './Togglable'
 import Blog from './Blog'
+import { connect } from 'react-redux';
 
 const BlogView = ({ user, logout, updateBlogs, blogs, like, remove }) => {
   return (
@@ -12,17 +13,30 @@ const BlogView = ({ user, logout, updateBlogs, blogs, like, remove }) => {
       </div>
 
       <Togglable buttonLabel="New blog">
-        <BlogForm
-          updateBlogs={updateBlogs}
-        />
+        <BlogForm />
       </Togglable>
 
       <div>
         <h2>Blogs</h2>
-        {blogs.map(blog => <Blog key={blog.id} blog={blog} like={like} remove={remove} user={user} />)}
+        {blogs.map(blog => <Blog key={blog.id} blog={blog} user={user} />)}
       </div>
     </div>
   )
 }
 
-export default BlogView
+const sortBlogs = (blogs) => {
+  const sortedBlogs = blogs.sort((o1, o2) => {
+    return o2.likes - o1.likes
+  })
+  return sortedBlogs
+}
+
+const mapStateToProps = (state) => {
+  return {
+    blogs: sortBlogs(state.blogs)
+  }
+}
+
+export default connect(
+  mapStateToProps
+)(BlogView)

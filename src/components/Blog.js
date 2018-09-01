@@ -1,11 +1,45 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import blogService from '../services/blogs'
+import { connect } from 'react-redux'
+import { notify } from '../reducers/notificationReducer'
+import { updateBlog, removeBlog } from '../reducers/blogsReducer'
 
 class Blog extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
       visible: true
+    }
+  }
+
+  likeBlog = async (id) => {
+    //console.log('like', id)
+    try {
+      const blog = this.props.blog
+      const updatedBlog = await blogService.update(id, {
+        ...blog,
+        likes: blog.likes + 1,
+        user: blog.user._id
+      })
+
+      this.props.updateBlog(updatedBlog)
+    } catch (e) {
+      this.props.notify('liking blog failed', 'f', 5)
+    }
+  }
+
+  deleteBlog = async (id) => {
+    //console.log('delete', id)
+    const toDelete = window.confirm(`delete '${this.props.blog.title}' by ${this.props.blog.author}?`)
+
+    if (toDelete) {
+      try {
+        await blogService.remove(id)
+        this.props.removeBlog(id)
+      } catch (e) {
+        this.props.notify('deleting blog failed', 'f', 5)
+      }
     }
   }
 
@@ -25,9 +59,9 @@ class Blog extends React.Component {
           <ExpandedBlog
             key={this.props.blog.id}
             blog={this.props.blog}
-            like={this.props.like}
+            like={this.likeBlog}
             expandBlog={this.expandBlog.bind(this)}
-            remove={this.props.remove}
+            remove={this.deleteBlog}
             user={this.props.user}
           />
         </div>
@@ -36,7 +70,6 @@ class Blog extends React.Component {
             key={this.props.blog.id}
             blog={this.props.blog}
             expandBlog={this.expandBlog.bind(this)}
-            remove={this.props.remove}
           />
         </div>
       </div>
@@ -47,8 +80,8 @@ class Blog extends React.Component {
 Blog.propTypes = {
   blog: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
-  like: PropTypes.func.isRequired,
-  remove: PropTypes.func.isRequired,
+  updateBlog: PropTypes.func.isRequired,
+  removeBlog: PropTypes.func.isRequired,
 }
 
 const ExpandedBlog = ({ blog, like, remove, expandBlog, user }) => {
@@ -66,6 +99,8 @@ const ExpandedBlog = ({ blog, like, remove, expandBlog, user }) => {
     }
   }
   let addedBy = blog.user ? <p>added by {blog.user.name}</p> : <p></p>
+  
+  //render this
   return (
     <div className="blogNode">
       <div className="expBlogInfo">
@@ -92,4 +127,7 @@ const SimpleBlog = ({ blog, expandBlog }) => {
   )
 }
 
-export default Blog
+export default connect(
+  null,
+  { notify, removeBlog, updateBlog }
+)(Blog)

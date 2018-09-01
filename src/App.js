@@ -6,15 +6,12 @@ import LoginForm from './components/LoginForm'
 import BlogView from './components/BlogView'
 import { connect } from 'react-redux'
 import { notify } from './reducers/notificationReducer'
+import { initializeBlogs } from './reducers/blogsReducer'
 
 class App extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      blogs: [],
-      newTitle: '',
-      newAuthor: '',
-      newUrl: '',
       username: '',
       password: '',
       user: null,
@@ -24,6 +21,7 @@ class App extends React.Component {
   }
 
   componentDidMount() {
+    this.props.initializeBlogs()
     blogService.getAll().then(blogs =>
       this.setState({ blogs })
     )
@@ -34,55 +32,6 @@ class App extends React.Component {
       this.setState({ user })
       blogService.setToken(user.token)
     }
-  }
-
-  updateBlogs = (blog) => {
-    this.setState({ blogs: this.state.blogs.concat(blog) })
-  }
-
-  likeBlog = async (id) => {
-    //console.log('like', id)
-
-    try {
-      const blog = this.state.blogs.find(b => b.id === id)
-
-      const updatedBlog = await blogService.update(id, {
-        title: blog.title,
-        author: blog.author,
-        url: blog.url,
-        likes: blog.likes + 1,
-        user: blog.user._id
-      })
-
-      const newBlogs = this.state.blogs.map(b => b.id === id ? updatedBlog : b)
-
-      this.setState({ blogs: newBlogs })
-    } catch (e) {
-      this.props.notify('liking blog failed', 'f', 5)
-    }
-  }
-
-  deleteBlog = async (id) => {
-    //console.log('delete', id)
-    const blog = this.state.blogs.find(b => b.id === id)
-    const toDelete = window.confirm(`delete '${blog.title}' by ${blog.author}?`)
-
-    if (toDelete) {
-      try {
-        await blogService.remove(id)
-        const newBlogs = this.state.blogs.filter(b => b.id !== id)
-        this.setState({ blogs: newBlogs })
-      } catch (e) {
-        this.props.notify('deleting blog failed', 'f', 5)
-      }
-    }
-  }
-
-  sortBlogs = () => {
-    const sortedBlogs = this.state.blogs.sort((o1, o2) => {
-      return o2.likes - o1.likes
-    })
-    return sortedBlogs
   }
 
   login = async (event) => {
@@ -105,7 +54,6 @@ class App extends React.Component {
     } catch (e) {
       this.props.notify('username or password invalid', 'f', 5)
     }
-
   }
 
   logout = () => {
@@ -118,7 +66,6 @@ class App extends React.Component {
   }
 
   render() {
-    const sortedBlogs = this.sortBlogs()
     return (
       <div>
         <h1>BLOGLIST</h1>
@@ -130,17 +77,11 @@ class App extends React.Component {
               handleChange={this.handleFieldChange}
               username={this.state.username}
               password={this.state.password}
-              error={this.state.error}
-              errorType={this.state.errorType}
             />
           </Togglable> :
           <BlogView
-            updateBlogs={this.updateBlogs}
             logout={this.logout}
             user={this.state.user}
-            blogs={sortedBlogs}
-            like={this.likeBlog}
-            remove={this.deleteBlog}
           />
         }
       </div>
@@ -150,5 +91,5 @@ class App extends React.Component {
 
 export default connect(
   null,
-  { notify }
+  { notify, initializeBlogs }
 )(App)

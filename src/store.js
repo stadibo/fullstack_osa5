@@ -1,9 +1,11 @@
 import { createStore, combineReducers, applyMiddleware } from 'redux'
 import notification from './reducers/notificationReducer'
+import blogs from './reducers/blogsReducer'
 import thunk from 'redux-thunk'
 
 const appReducers = combineReducers({
-  notification
+  notification,
+  blogs
 })
 
 const store = createStore(
