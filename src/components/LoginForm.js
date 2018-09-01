@@ -6,6 +6,8 @@ import InputField from './InputField'
 import { connect } from 'react-redux'
 import { notify } from '../reducers/notificationReducer'
 import { setUser } from '../reducers/loggedInReducer'
+import { initializeBlogs } from '../reducers/blogsReducer'
+import { initializeUsers } from '../reducers/usersReducer'
 
 class LoginForm extends React.Component {
   constructor(props) {
@@ -13,6 +15,20 @@ class LoginForm extends React.Component {
     this.state = {
       username: '',
       password: ''
+    }
+  }
+
+  componentDidMount() {
+    this.props.initializeBlogs()
+    this.props.initializeUsers()
+    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
+
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON)
+
+      blogService.setToken(user.token)
+      this.props.setUser(user)
+      this.props.history.push('/blogs')
     }
   }
 
@@ -33,6 +49,8 @@ class LoginForm extends React.Component {
         username: '',
         password: ''
       })
+
+      this.props.history.push('/blogs')
     } catch (e) {
       this.props.notify('username or password invalid', 'f', 5)
     }
@@ -82,42 +100,5 @@ class LoginForm extends React.Component {
 
 export default connect(
   null,
-  { notify, setUser }
+  { notify, setUser, initializeBlogs, initializeUsers}
 )(LoginForm)
-
-// const LoginForm = ({ handleSubmit, handleChange, username, password }) => (
-//   <div>
-//     <h2>Login to view blogs</h2>
-
-//     <Notification />
-
-//     <form onSubmit={handleSubmit} className="loginForm">
-//       <table>
-//         <tbody>
-//           <InputField
-//             type="text"
-//             name={"username"}
-//             id="Username"
-//             value={username}
-//             onChange={handleChange}
-//           />
-
-//           <InputField
-//             type="password"
-//             name="password"
-//             id="Password"
-//             value={password}
-//             onChange={handleChange}
-//           />
-//         </tbody>
-//       </table>
-//       <input
-//         type="submit"
-//         value="LOGIN"
-//         name="submitUser"
-//       />
-//     </form>
-//   </div>
-// )
-
-//export default LoginForm

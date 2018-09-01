@@ -88,14 +88,14 @@ const ExpandedBlog = ({ blog, like, remove, expandBlog, user }) => {
   const likeBlog = (id) => () => like(id)
   const deleteBlog = (id) => () => remove(id)
   const showDelete = () => {
-    if (blog.user) {
+    if (blog.user && user) {
       if (blog.user.username === user.username) {
         return <button onClick={deleteBlog(blog.id)}>Delete blog</button>
       } else {
-        return <p></p>
+        return null
       }
     } else {
-      return <button onClick={deleteBlog(blog.id)}>Delete blog</button>
+      return null
     }
   }
   let addedBy = blog.user ? <p>added by {blog.user.name}</p> : <p></p>
