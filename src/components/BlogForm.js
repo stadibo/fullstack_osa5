@@ -2,6 +2,8 @@ import React from 'react'
 import blogService from '../services/blogs'
 import Notification from './Notification'
 import InputField from './InputField'
+import { connect } from 'react-redux'
+import { notify } from '../reducers/notificationReducer'
 
 class BlogForm extends React.Component {
   constructor(props) {
@@ -36,21 +38,9 @@ class BlogForm extends React.Component {
 
       this.updateBlogs(newBlog)
 
-      this.setState({
-        error: `a new blog '${newBlog.title}' by ${newBlog.author} added`,
-        errorType: 's'
-      })
-      setTimeout(() => {
-        this.setState({ error: null, errorType: '' })
-      }, 5000)
+      this.props.notify(`a new blog '${newBlog.title}' by ${newBlog.author} added`, 's', 5)
     } catch (e) {
-      this.setState({
-        error: 'adding a new blog failed',
-        errorType: 'f'
-      })
-      setTimeout(() => {
-        this.setState({ error: null, errorType: null })
-      }, 5000)
+      this.props.notify('adding a new blog failed', 'f', 5)
     }
   }
 
@@ -112,4 +102,7 @@ class BlogForm extends React.Component {
   }
 }
 
-export default BlogForm
+export default connect(
+  null,
+  { notify }
+)(BlogForm)

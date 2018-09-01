@@ -4,6 +4,8 @@ import loginSevice from './services/login'
 import Togglable from './components/Togglable'
 import LoginForm from './components/LoginForm'
 import BlogView from './components/BlogView'
+import { connect } from 'react-redux'
+import { notify } from './reducers/notificationReducer'
 
 class App extends React.Component {
   constructor(props) {
@@ -56,13 +58,7 @@ class App extends React.Component {
 
       this.setState({ blogs: newBlogs })
     } catch (e) {
-      this.setState({
-        error: 'liking blog failed',
-        errorType: 'f'
-      })
-      setTimeout(() => {
-        this.setState({ error: null, errorType: null })
-      }, 5000)
+      this.props.notify('liking blog failed', 'f', 5)
     }
   }
 
@@ -77,13 +73,7 @@ class App extends React.Component {
         const newBlogs = this.state.blogs.filter(b => b.id !== id)
         this.setState({ blogs: newBlogs })
       } catch (e) {
-        this.setState({
-          error: 'deleting blog failed',
-          errorType: 'f'
-        })
-        setTimeout(() => {
-          this.setState({ error: null, errorType: null })
-        }, 5000)
+        this.props.notify('deleting blog failed', 'f', 5)
       }
     }
   }
@@ -113,13 +103,7 @@ class App extends React.Component {
         user
       })
     } catch (e) {
-      this.setState({
-        error: 'username or password invalid',
-        errorType: 'f'
-      })
-      setTimeout(() => {
-        this.setState({ error: null, errorType: '' })
-      }, 5000)
+      this.props.notify('username or password invalid', 'f', 5)
     }
 
   }
@@ -164,4 +148,7 @@ class App extends React.Component {
   }
 }
 
-export default App
+export default connect(
+  null,
+  { notify }
+)(App)
