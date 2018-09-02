@@ -61,44 +61,45 @@ class LoginForm extends React.Component {
   }
 
   render() {
+    console.log('login')
     return (
       <div>
-    <h2>Login to view blogs</h2>
+        <h2>Login to view blogs</h2>
 
-    <Notification />
+        <Notification />
 
-    <form onSubmit={this.login} className="loginForm">
-      <table>
-        <tbody>
-          <InputField
-            type="text"
-            name={"username"}
-            id="Username"
-            value={this.state.username}
-            onChange={this.handleFieldChange}
+        <form onSubmit={this.login} className="loginForm">
+          <table>
+            <tbody>
+              <InputField
+                type="text"
+                name={"username"}
+                id="Username"
+                value={this.state.username}
+                onChange={this.handleFieldChange}
+              />
+
+              <InputField
+                type="password"
+                name="password"
+                id="Password"
+                value={this.state.password}
+                onChange={this.handleFieldChange}
+              />
+            </tbody>
+          </table>
+          <input
+            type="submit"
+            value="LOGIN"
+            name="submitUser"
           />
-
-          <InputField
-            type="password"
-            name="password"
-            id="Password"
-            value={this.state.password}
-            onChange={this.handleFieldChange}
-          />
-        </tbody>
-      </table>
-      <input
-        type="submit"
-        value="LOGIN"
-        name="submitUser"
-      />
-    </form>
-  </div>
+        </form>
+      </div>
     )
   }
 }
 
 export default connect(
   null,
-  { notify, setUser, initializeBlogs, initializeUsers}
+  { notify, setUser, initializeBlogs, initializeUsers }
 )(LoginForm)

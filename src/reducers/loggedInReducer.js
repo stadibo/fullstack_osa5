@@ -1,5 +1,6 @@
 export const setUser = (data) => {
   return (dispatch) => {
+    console.log('logging in')
     dispatch({
       type: 'LOGIN',
       data

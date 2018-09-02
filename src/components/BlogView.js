@@ -4,11 +4,10 @@ import Meny from './Meny'
 import Togglable from './Togglable'
 import Blog from './Blog'
 import { connect } from 'react-redux'
-import { Redirect } from 'react-router-dom'
 
 const BlogView = ({ user, blogs, logout }) => {
-  return user
-    ? (<div>
+  console.log('blogs', user)
+  return (<div>
       <Meny user={user} logout={logout} />
 
       <Togglable buttonLabel="New blog">
@@ -20,7 +19,6 @@ const BlogView = ({ user, blogs, logout }) => {
         {blogs.map(blog => <Blog key={blog.id} blog={blog} user={user} />)}
       </div>
     </div>)
-    : <Redirect to="/login" />
 }
 
 const sortBlogs = (blogs) => {
